@@ -1,0 +1,59 @@
+package com.anutej.openstream_api.service;
+
+import org.springframework.stereotype.Service;
+
+import com.anutej.openstream_api.entity.User;
+import com.anutej.openstream_api.repository.UserRepository;
+
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    // methods
+
+    @Transactional
+    public User createUser(String username, String handle) {
+
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
+        if (handle == null || handle.isBlank()) {
+            throw new IllegalArgumentException("Handle cannot be empty");
+        }
+
+        username = username.trim();
+        handle = handle.trim().toLowerCase();
+
+        if (!handle.matches("^[a-z0-9_]{3,20}$")) {
+            throw new IllegalArgumentException(
+                    "Handle must be 3-20 characters long and can only contain letters, numbers, and underscores");
+        }
+
+        if (userRepository.existsByHandle(handle)) {
+            throw new IllegalArgumentException("Handle already exists");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setHandle(handle);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public User getByHandle(String handle) {
+        if (handle == null || handle.isBlank()) {
+            throw new IllegalArgumentException("Handle cannot be empty");
+        }
+        return userRepository.findByHandle(handle.toLowerCase())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+}
