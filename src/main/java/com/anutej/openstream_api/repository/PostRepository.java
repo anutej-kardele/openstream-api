@@ -13,16 +13,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByAuthorIdOrderByCreatedAtDesc(Long authorId);
 
     @Query("""
-                SELECT p
-            FROM Post
-            p
-            WHERE
-
-            p.author.id IN (
+            SELECT p FROM Post p
+            JOIN FETCH p.author
+            WHERE p.author.id IN (
                 SELECT f.followed.id FROM Follow f WHERE f.follower.id = :userId
             )
             OR p.author.id = :userId
-            ORDER BY p.createdAt DESC""")
+            ORDER BY p.createdAt DESC
+            """)
     List<Post> findFeedForUser(@Param("userId") Long userId);
 
 }

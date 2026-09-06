@@ -1,8 +1,12 @@
 package com.anutej.openstream_api.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.anutej.openstream_api.dto.response.FollowCountsResponse;
+import com.anutej.openstream_api.dto.response.UserResponse;
 import com.anutej.openstream_api.entity.Follow;
 import com.anutej.openstream_api.entity.User;
 import com.anutej.openstream_api.repository.FollowRepository;
@@ -56,23 +60,41 @@ public class FollowService {
     }
 
     @Transactional(readOnly = true)
-    public long countFollowing(Long followerId) {
-        // Check if the user exists
-        if (!userRepository.existsById(followerId)) {
+    public List<UserResponse> getFollowing(Long userId) {
+        if (!userRepository.existsById(userId)) {
             throw new IllegalArgumentException("User not found");
         }
 
-        return followRepository.countByFollowerId(followerId);
+        return followRepository.findByFollowerId(userId).stream()
+                .map(follow -> toResponse(follow.getFollowed()))
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public long countFollowers(Long followedId) {
-        // Check if the user exists
-        if (!userRepository.existsById(followedId)) {
+    public List<UserResponse> getFollowers(Long userId) {
+        if (!userRepository.existsById(userId)) {
             throw new IllegalArgumentException("User not found");
         }
 
-        return followRepository.countByFollowedId(followedId);
+        return followRepository.findByFollowedId(userId).stream()
+                .map(follow -> toResponse(follow.getFollower()))
+                .toList();
     }
 
+    @Transactional(readOnly = true)
+    public FollowCountsResponse getCounts(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        return new FollowCountsResponse(
+                followRepository.countByFollowerId(userId),
+                followRepository.countByFollowedId(userId));
+    }
+
+    // --- mapping ---
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(user.getId(), user.getUsername(), user.getHandle());
+    }
 }
