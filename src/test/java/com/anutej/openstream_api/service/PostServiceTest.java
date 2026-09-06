@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.anutej.openstream_api.dto.response.PostResponse;
 import com.anutej.openstream_api.entity.Post;
 import com.anutej.openstream_api.entity.User;
 import com.anutej.openstream_api.repository.PostRepository;
@@ -48,11 +49,11 @@ public class PostServiceTest {
         when(postRepository.save(any(Post.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // act
-        Post result = postService.createPost(1L, "Hello world");
+        PostResponse result = postService.createPost(1L, "Hello world");
 
         // assert
-        assertEquals("Hello world", result.getContent());
-        assertEquals(user, result.getAuthor());
+        assertEquals("Hello world", result.content());
+        assertEquals("anutej", result.authorHandle());
     }
 
     @Test
@@ -80,12 +81,12 @@ public class PostServiceTest {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(postRepository.findFeedForUser(1L)).thenReturn(List.of(post1, post2, post3));
 
-        List<Post> feed = postService.getFeed(1L);
+        List<PostResponse> feed = postService.getFeed(1L);
 
         assertEquals(3, feed.size());
-        assertEquals("Post 1", feed.get(0).getContent());
-        assertEquals("Post 2", feed.get(1).getContent());
-        assertEquals("player2", feed.get(1).getAuthor().getHandle());
-        assertEquals("Post 3", feed.get(2).getContent());
+        assertEquals("Post 1", feed.get(0).content());
+        assertEquals("Post 2", feed.get(1).content());
+        assertEquals("player2", feed.get(1).authorHandle());
+        assertEquals("Post 3", feed.get(2).content());
     }
 }

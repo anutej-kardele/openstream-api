@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.anutej.openstream_api.dto.response.UserResponse;
 import com.anutej.openstream_api.entity.User;
 import com.anutej.openstream_api.repository.UserRepository;
 
@@ -41,9 +42,9 @@ public class UserServiceTest {
 
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        User result = userService.createUser("Anutej Kardele", "Anutej");
+        UserResponse result = userService.createUser("Anutej Kardele", "Anutej");
 
-        assertEquals("anutej", result.getHandle());
+        assertEquals("anutej", result.handle());
     }
 
     @Test

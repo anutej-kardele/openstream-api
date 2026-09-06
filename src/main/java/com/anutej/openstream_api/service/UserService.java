@@ -2,6 +2,7 @@ package com.anutej.openstream_api.service;
 
 import org.springframework.stereotype.Service;
 
+import com.anutej.openstream_api.dto.response.UserResponse;
 import com.anutej.openstream_api.entity.User;
 import com.anutej.openstream_api.repository.UserRepository;
 
@@ -19,7 +20,7 @@ public class UserService {
     // methods
 
     @Transactional
-    public User createUser(String username, String handle) {
+    public UserResponse createUser(String username, String handle) {
 
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Username cannot be empty");
@@ -44,16 +45,27 @@ public class UserService {
         user.setUsername(username);
         user.setHandle(handle);
 
-        return userRepository.save(user);
+        var saved = userRepository.save(user);
+        return toResponse(saved);
     }
 
     @Transactional(readOnly = true)
-    public User getByHandle(String handle) {
+    public UserResponse getByHandle(String handle) {
         if (handle == null || handle.isBlank()) {
             throw new IllegalArgumentException("Handle cannot be empty");
         }
-        return userRepository.findByHandle(handle.toLowerCase())
+
+        return userRepository.findByHandle(handle.toLowerCase()).map(this::toResponse)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    // --- mapping ---
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getHandle());
     }
 
 }
