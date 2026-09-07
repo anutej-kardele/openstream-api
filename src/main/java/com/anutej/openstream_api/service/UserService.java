@@ -1,5 +1,7 @@
 package com.anutej.openstream_api.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.anutej.openstream_api.dto.response.UserResponse;
@@ -57,6 +59,20 @@ public class UserService {
 
         return userRepository.findByHandle(handle.toLowerCase()).map(this::toResponse)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> search(String query) {
+        if (query == null || query.isBlank()) {
+            throw new IllegalArgumentException("Query cannot be empty");
+        }
+
+        return userRepository
+                .findByHandleContainingIgnoreCaseOrUsernameContainingIgnoreCase(query.toLowerCase(),
+                        query.toLowerCase())
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     // --- mapping ---
