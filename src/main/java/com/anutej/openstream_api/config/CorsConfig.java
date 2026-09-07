@@ -14,6 +14,7 @@ public class CorsConfig implements WebMvcConfigurer {
                         "http://localhost:5173",
                         "https://anutej-kardele.github.io",
                         "https://anutej.us",
+                        "http://openstream.anutej.us",
                         "https://openstream.anutej.us")
                 .allowedMethods("GET", "POST", "DELETE");
     }
